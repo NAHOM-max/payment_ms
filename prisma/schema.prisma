@@ -8,7 +8,7 @@ generator client {
   output   = "../infrastructure/db/prisma"
 }
 
-model Payment {
+model payment {
   id         String   @id
   customerId String
   orderId    String
