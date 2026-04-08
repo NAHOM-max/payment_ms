@@ -1,0 +1,20 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "go run github.com/steebchen/prisma-client-go"
+  output   = "../infrastructure/db/prisma"
+}
+
+model Payment {
+  id         String   @id
+  customerId String
+  orderId    String
+  workflowId String
+  amount     Float
+  status     String
+  createdAt  DateTime
+  updatedAt  DateTime
+}
