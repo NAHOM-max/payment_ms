@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrPaymentNotFound      = errors.New("payment not found")
+	ErrPaymentNotFound         = errors.New("payment not found")
 	ErrInvalidStatusTransition = errors.New("invalid status transition")
 )
 
