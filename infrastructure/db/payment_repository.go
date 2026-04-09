@@ -19,14 +19,14 @@ func NewPaymentRepository(client *prisma.PrismaClient) *PaymentRepository {
 
 func (r *PaymentRepository) Create(ctx context.Context, p *domain.Payment) error {
 	_, err := r.client.Payment.CreateOne(
-		prisma.Payment.ID.Set(p.ID),
 		prisma.Payment.CustomerID.Set(p.CustomerID),
 		prisma.Payment.OrderID.Set(p.OrderID),
 		prisma.Payment.WorkflowID.Set(p.WorkflowID),
 		prisma.Payment.Amount.Set(p.Amount),
-		prisma.Payment.Status.Set(string(p.Status)),
+		prisma.Payment.Status.Set(toDBStatus(p.Status)),
 		prisma.Payment.CreatedAt.Set(p.CreatedAt),
 		prisma.Payment.UpdatedAt.Set(p.UpdatedAt),
+		prisma.Payment.ID.Set(p.ID),
 	).Exec(ctx)
 	return err
 }
@@ -45,11 +45,13 @@ func (r *PaymentRepository) UpdateStatus(ctx context.Context, paymentID string, 
 	_, err := r.client.Payment.FindUnique(
 		prisma.Payment.ID.Equals(paymentID),
 	).Update(
-		prisma.Payment.Status.Set(string(status)),
+		prisma.Payment.Status.Set(toDBStatus(status)),
 		prisma.Payment.UpdatedAt.Set(time.Now().UTC()),
 	).Exec(ctx)
 	return err
 }
+
+// ── Mapping ───────────────────────────────────────────────────────────────────
 
 func toDomain(row *prisma.PaymentModel) *domain.Payment {
 	return &domain.Payment{
@@ -62,4 +64,8 @@ func toDomain(row *prisma.PaymentModel) *domain.Payment {
 		CreatedAt:  row.CreatedAt,
 		UpdatedAt:  row.UpdatedAt,
 	}
+}
+
+func toDBStatus(s domain.PaymentStatus) prisma.PaymentStatus {
+	return prisma.PaymentStatus(s)
 }

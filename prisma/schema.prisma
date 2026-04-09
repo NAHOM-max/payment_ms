@@ -8,13 +8,22 @@ generator client {
   output   = "../infrastructure/db/prisma"
 }
 
+enum PaymentStatus {
+  INITIATED
+  SUCCESSFUL
+  FAILED
+  CANCELED
+}
+
 model payment {
-  id         String   @id
+  id         String        @id @default(uuid())
   customerId String
   orderId    String
   workflowId String
   amount     Float
-  status     String
+  status     PaymentStatus
   createdAt  DateTime
   updatedAt  DateTime
+
+  @@index([workflowId])
 }
