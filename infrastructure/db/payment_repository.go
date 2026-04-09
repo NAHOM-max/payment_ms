@@ -51,6 +51,20 @@ func (r *PaymentRepository) UpdateStatus(ctx context.Context, paymentID string, 
 	return err
 }
 
+func (r *PaymentRepository) UpdateStatusConditional(ctx context.Context, paymentID string, fromStatus, toStatus domain.PaymentStatus) (bool, error) {
+	result, err := r.client.Payment.FindMany(
+		prisma.Payment.ID.Equals(paymentID),
+		prisma.Payment.Status.Equals(toDBStatus(fromStatus)),
+	).Update(
+		prisma.Payment.Status.Set(toDBStatus(toStatus)),
+		prisma.Payment.UpdatedAt.Set(time.Now().UTC()),
+	).Exec(ctx)
+	if err != nil {
+		return false, err
+	}
+	return result.Count > 0, nil
+}
+
 // ── Mapping ───────────────────────────────────────────────────────────────────
 
 func toDomain(row *prisma.PaymentModel) *domain.Payment {
