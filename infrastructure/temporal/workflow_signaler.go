@@ -11,8 +11,8 @@ import (
 const signalName = "payment_update"
 
 type SignalPayload struct {
-	PaymentID string
-	Status    domain.PaymentStatus
+	PaymentID string               `json:"payment_id"`
+	Status    domain.PaymentStatus `json:"status"`
 }
 
 type WorkflowSignaler struct {
