@@ -13,6 +13,7 @@ enum PaymentStatus {
   SUCCESSFUL
   FAILED
   CANCELED
+  REFUND_REQUESTED
 }
 
 model payment {
