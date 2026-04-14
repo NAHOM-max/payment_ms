@@ -54,11 +54,12 @@ func main() {
 	// ── Use cases ─────────────────────────────────────────────────────────────
 	initiateUC := application.NewInitiatePaymentUseCase(repo)
 	webhookUC := application.NewHandleWebhookUseCase(repo, signaler)
+	refundUC := application.NewRequestRefundUseCase(repo)
 
 	// ── HTTP server ───────────────────────────────────────────────────────────
 	srv := &http.Server{
 		Addr:         env("HTTP_ADDR", ":8080"),
-		Handler:      httphandler.NewRouter(initiateUC, webhookUC),
+		Handler:      httphandler.NewRouter(initiateUC, webhookUC, refundUC),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  60 * time.Second,
