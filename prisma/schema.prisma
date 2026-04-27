@@ -28,3 +28,15 @@ model payment {
 
   @@index([workflowId])
 }
+
+model inboxEvent {
+  id        String   @id @default(uuid())
+  eventId   String   @unique
+  eventType String
+  payload   Json     @db.JsonB
+  processed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("inbox_events")
+}

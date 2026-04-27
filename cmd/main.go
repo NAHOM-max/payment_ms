@@ -16,6 +16,7 @@ import (
 	"payment_ms/application"
 	infradb "payment_ms/infrastructure/db"
 	prisma "payment_ms/infrastructure/db/prisma"
+	kafkaconsumer "payment_ms/infrastructure/kafka"
 	infratemporal "payment_ms/infrastructure/temporal"
 	httphandler "payment_ms/interfaces/http"
 )
@@ -49,12 +50,19 @@ func main() {
 
 	// ── Infrastructure ────────────────────────────────────────────────────────
 	repo := infradb.NewPaymentRepository(prismaClient)
+	inboxRepo := infradb.NewInboxRepository(prismaClient)
 	signaler := infratemporal.NewWorkflowSignaler(temporalClient)
 
 	// ── Use cases ─────────────────────────────────────────────────────────────
 	initiateUC := application.NewInitiatePaymentUseCase(repo)
 	webhookUC := application.NewHandleWebhookUseCase(repo, signaler)
 	refundUC := application.NewRequestRefundUseCase(repo)
+	handleDeliveryUC := application.NewHandleDeliveryConfirmedUseCase(inboxRepo)
+
+	// Kafka consumer─────────────────────────────────────────────────────────────
+	brokers := []string{"localhost:9092"}
+	consumer := kafkaconsumer.NewDeliveryConfirmedConsumer(brokers, handleDeliveryUC)
+	go consumer.Run(context.Background())
 
 	// ── HTTP server ───────────────────────────────────────────────────────────
 	srv := &http.Server{
