@@ -60,8 +60,10 @@ func main() {
 	handleDeliveryUC := application.NewHandleDeliveryConfirmedUseCase(inboxRepo)
 
 	// Kafka consumer─────────────────────────────────────────────────────────────
-	brokers := []string{"localhost:9092"}
-	consumer := kafkaconsumer.NewDeliveryConfirmedConsumer(brokers, handleDeliveryUC)
+	brokers := []string{env("KAFKA_BROKERS", "localhost:9094")}
+	dlqProducer := kafkaconsumer.NewKafkaDLQProducer(brokers)
+	defer dlqProducer.Close()
+	consumer := kafkaconsumer.NewDeliveryConfirmedConsumer(brokers, handleDeliveryUC, dlqProducer, 3)
 	go consumer.Run(context.Background())
 
 	// ── HTTP server ───────────────────────────────────────────────────────────
